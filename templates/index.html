@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasir Ahsan SERP</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .search-form {
+            margin-bottom: 20px;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .result-item h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 20px;
+            font-weight: normal;
+        }
+        .result-item p {
+            margin-bottom: 5px;
+        }
+        .result-item a {
+            color: #1a0dab;
+            text-decoration: none;
+        }
+        .result-item a:hover {
+            text-decoration: underline;
+        }
+        .description {
+            color: #4d5156;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Limit to 3 lines */
+            -webkit-box-orient: vertical;
+        }
+        .read-more {
+            display: none;
+        }
+        .read-more-btn {
+            cursor: pointer;
+            color: #1a0dab;
+        }
+        .load-more-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Nasir Ahsan SERP</h1>
+        <form class="search-form" action="{{ url_for('search') }}" method="post">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="query" placeholder="Enter your query">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+        </form>
+        {% if query %}
+            <h2 class="mb-3">Search Result for: {{ query }}</h2>
+            <div id="results-container">
+                {% if relevant_documents %}
+                    {% for doc in relevant_documents %}
+                        <div class="result-item">
+                            <h3><a href="{{ doc['URI'] }}" target="_blank">{{ doc['Title'] }}</a></h3>
+                            <p><strong>ID:</strong> {{ doc['ID'] }}</p>
+                            <div class="description" id="description-{{ loop.index }}">
+                                {% if doc['Description'] is string %}
+                                    {{ doc['Description']|truncate(300) }}
+                                    {% if doc['Description']|length > 300 %}
+                                        <p class="read-more-btn" onclick="toggleDescription({{ loop.index }})">Read more</p>
+                                        <span class="read-more">{{ doc['Description'] }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ doc['Description'] }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No results found.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDescription(index) {
+            const descriptionDiv = document.getElementById(`description-${index}`);
+            const readMoreBtn = descriptionDiv.querySelector('.read-more-btn');
+            const readMoreSpan = descriptionDiv.querySelector('.read-more');
+
+            if (readMoreSpan.style.display === "none") {
+                readMoreSpan.style.display = "inline"; // Show full description
+                readMoreBtn.textContent = "Read less"; // Change button text
+            } else {
+                readMoreSpan.style.display = "none"; // Hide full description
+                readMoreBtn.textContent = "Read more"; // Change button text
+            }
+        }
+    </script>
+</body>
+</html>
