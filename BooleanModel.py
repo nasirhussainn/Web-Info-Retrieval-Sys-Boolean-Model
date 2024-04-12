@@ -3,7 +3,6 @@ from query import infix_to_postfix
 from Stack import Stack
 
 class BooleanModel(object):
-    """ Boolean model for unranked retrieval of information """
 
     def __init__(self, inverted_index_file, meta_file):
         # Load inverted index CSV file
@@ -12,11 +11,6 @@ class BooleanModel(object):
         self.meta_file_df = pd.read_csv(meta_file)
 
     def query(self, query):
-        """Query the indexed documents using a boolean model
-
-        :param query: valid boolean expression to search for
-        :returns: list of dictionaries representing matching documents
-        """
         if len(query.split()) == 1:
             # Single term query
             matching_docs = self.get_matching_docs(query)
@@ -27,7 +21,6 @@ class BooleanModel(object):
         return matching_docs
 
     def get_matching_docs(self, term):
-        """Get documents matching a single term"""
         term = term.lower()
         if term in self.inverted_index_df['Keyword'].values:
             posting_list = self.inverted_index_df.loc[self.inverted_index_df['Keyword'] == term, 'Posting List'].iloc[0]
@@ -38,16 +31,12 @@ class BooleanModel(object):
             return []
 
     def evaluate_query(self, query):
-        """Evaluates the query against the inverted index
 
-        :param query: boolean expression to search for
-        :returns: list of dictionaries representing matching documents
-        """
         stack = Stack()
 
         for token in query:
             if token not in ['&', '|', '~']:
-                stack.push(self.get_matching_docs(token))  # Push the matching docs directly
+                stack.push(self.get_matching_docs(token))
             else:
                 if token == '&':
                     right = stack.pop()
@@ -81,7 +70,11 @@ class BooleanModel(object):
         return merged_docs
 
     def perform_not(self, operand):
-        all_docs = set(self.meta_file_df.index)
-        operand_ids = [doc['ID'] for doc in operand]
-        return list(all_docs - set(operand_ids))
+        all_doc_ids = set(self.meta_file_df['ID'])
+        operand_ids = set(doc['ID'] for doc in operand)
+        result_ids = all_doc_ids - operand_ids
+        result = [doc for doc in self.meta_file_df.to_dict(orient='records') if doc['ID'] in result_ids]
+        return result
+
+
 

@@ -16,24 +16,14 @@ def is_left_bracket(token):
 
 
 def is_right_bracket(token):
-    """ Returns true if right bracket """
     return token == ")"
 
 
 def is_operator(token):
-    """ Returns true if operator """
     return token in {"&", "|", "~"}
 
 
 def infix_to_postfix(tokens):
-    """Converts a infix query into postfix
-    Input : ['god', '&', '(', '~child', '|', 'mother', ')']
-    Output : ['god', '~child', 'mother', '|', '&']
-
-    :param tokens: list of tokens in infix form
-    :returns: same list of tokens in postfix form
-    """
-
     stack = Stack()
     postfix = list()
 
