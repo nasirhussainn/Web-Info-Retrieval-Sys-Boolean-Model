@@ -21,10 +21,16 @@ class BooleanModel(object):
         return matching_docs
 
     def get_matching_docs(self, term):
-        term = term.lower()
+        term = term.lower().strip()  # Strip leading and trailing spaces from the term
+        # Reset the index of inverted_index_df
+        self.inverted_index_df.reset_index(drop=True, inplace=True)
         if term in self.inverted_index_df['Keyword'].values:
-            posting_list = self.inverted_index_df.loc[self.inverted_index_df['Keyword'] == term, 'Posting List'].iloc[0]
-            doc_ids = [int(doc_id) for doc_id in posting_list.split('-') if doc_id.strip()]
+            posting_list = \
+            self.inverted_index_df.loc[self.inverted_index_df['Keyword'].str.strip() == term, 'Posting List'].iloc[0]
+            # Convert document IDs to integers
+            doc_ids = [int(float(doc_id)) for doc_id in posting_list.split('-') if doc_id.strip()]
+            # Adjust the document IDs to start from 1 instead of 0
+            doc_ids = [doc_id + (-1) for doc_id in doc_ids]
             matching_docs = self.meta_file_df[self.meta_file_df.index.isin(doc_ids)].to_dict(orient='records')
             return matching_docs
         else:
